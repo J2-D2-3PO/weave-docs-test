@@ -1,0 +1,8 @@
+{
+  "devDependencies": {
+    "mintlify": "^4.0.588"
+  },
+  "dependencies": {
+    "@mintlify/scraping": "^4.0.276"
+  }
+}

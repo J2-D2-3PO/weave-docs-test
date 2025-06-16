@@ -1,102 +1,158 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Mint Starter Kit",
+  "name": "W&B Weave",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#0D9373",
+    "light": "#55D799",
+    "dark": "#0D9373"
   },
   "favicon": "/favicon.svg",
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "W&B Weave",
         "groups": [
           {
-            "group": "Get Started",
+            "group": "👋 Introduction",
+            "pages": ["introduction", "quickstart"]
+          },
+          {
+            "group": "🔄 Iteration",
+            "pages": ["tutorial-tracing_2"]
+          },
+          {
+            "group": "Tracing & Debugging",
             "pages": [
-              "index",
-              "quickstart",
-              "development"
+              "guides/tracking/tracing",
+              "guides/tracking/costs",
+              "guides/core-types/media",
+              "guides/tools/playground",
+              "guides/integrations/index",
+              "guides/tools/saved-views",
+              "guides/tools/comparison",
+              "guides/tracking/trace-tree",
+              "guides/tracking/otel",
+              "guides/tracking/video"
             ]
           },
           {
-            "group": "Essentials",
+            "group": "Version Control for Models & Prompts",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/settings",
-              "essentials/navigation",
-              "essentials/reusable-snippets"
+              "tutorial-weave_models",
+              "guides/core-types/models",
+              "guides/core-types/prompts",
+              "guides/tracking/objects",
+              "guides/tracking/ops"
+            ]
+          },
+          {
+            "group": "📊 Evaluation",
+            "pages": ["tutorial-eval", "tutorial-rag"]
+          },
+          {
+            "group": "Evaluations",
+            "pages": [
+              "guides/core-types/evaluations",
+              "guides/core-types/datasets",
+              "guides/evaluation/scorers",
+              "guides/evaluation/builtin_scorers",
+              "guides/evaluation/weave_local_scorers",
+              "guides/evaluation/evaluation_logger"
+            ]
+          },
+          {
+            "group": "🚀 Productionization",
+            "pages": []
+          },
+          {
+            "group": "Collect Feedback & Examples",
+            "pages": [
+              "guides/tracking/feedback",
+              "guides/tracking/redact-pii"
+            ]
+          },
+          {
+            "group": "Online Evaluation",
+            "pages": [
+              "guides/evaluation/guardrails_and_monitors"
+            ]
+          },
+          {
+            "group": "Tools & Utilities",
+            "pages": [
+              "guides/tools/index",
+              "guides/tools/serve",
+              "guides/tools/deploy",
+              "guides/tracking/otel"
+            ]
+          },
+          {
+            "group": "🔥 Integrations",
+            "pages": [
+              "guides/integrations/index",
+              "guides/integrations/bedrock",
+              "guides/integrations/anthropic",
+              "guides/integrations/cerebras",
+              "guides/integrations/cohere",
+              "guides/integrations/google",
+              "guides/integrations/groq",
+              "guides/integrations/huggingface",
+              "guides/integrations/litellm",
+              "guides/integrations/azure",
+              "guides/integrations/mistral",
+              "guides/integrations/nvidia_nim",
+              "guides/integrations/openai",
+              "guides/integrations/openrouter",
+              "guides/integrations/together_ai",
+              "guides/integrations/local_models",
+              "guides/integrations/openai_agents",
+              "guides/integrations/langchain",
+              "guides/integrations/llamaindex",
+              "guides/integrations/dspy",
+              "guides/integrations/instructor",
+              "guides/integrations/crewai",
+              "guides/integrations/smolagents",
+              "guides/integrations/pydantic_ai",
+              "guides/integrations/google_adk",
+              "guides/integrations/js",
+              "guides/integrations/mcp"
+            ]
+          },
+          {
+            "group": "🏭 Enterprise",
+            "pages": [
+              "guides/platform/index",
+              "guides/platform/weave-self-managed"
+            ]
+          },
+          {
+            "group": "🛠️ Tools & Resources",
+            "pages": [
+              "guides/core-types/env-vars",
+              "guides/troubleshooting",
+              "guides/tracking/faqs"
             ]
           }
         ]
       },
       {
-        "tab": "API Reference",
+        "tab": "Cookbooks",
         "groups": [
           {
-            "group": "API Documentation",
+            "group": "Python",
             "pages": [
-              "api-reference/introduction"
+              "reference/gen_notebooks/intro_notebook"
             ]
           },
           {
-            "group": "Endpoint Examples",
+            "group": "TypeScript",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "reference/generated_typescript_docs/intro-notebook"
             ]
           }
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Community",
-          "href": "https://mintlify.com/community",
-          "icon": "slack"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
-  },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
-  },
-  "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
-      }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
-    }
-  },
-  "footer": {
-    "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
-    }
+    ]
   }
 }

@@ -1,0 +1,57 @@
+---
+title: "Setting up a custom cost model"
+---
+
+<Check>
+  [![Open In Colab](/images/reference/gen_notebooks/wikipedia/commons/archive/d/d0/20221103151430-Google_Colaboratory_SVG_Logo.svg)](https://colab.research.google.com/github/wandb/weave/blob/master/docs/./notebooks/custom_model_cost.ipynb)
+
+  [Open in Colab](https://colab.research.google.com/github/wandb/weave/blob/master/docs/./notebooks/custom_model_cost.ipynb)
+
+  [![View in Github](/images/reference/gen_notebooks/wikipedia/commons/9/91/Octicons-mark-github.svg)](https://github.com/wandb/weave/blob/master/docs/./notebooks/custom_model_cost.ipynb)
+
+  [View in Github](https://github.com/wandb/weave/blob/master/docs/./notebooks/custom_model_cost.ipynb)
+</Check>
+
+Weave calculates costs based on the number of tokens used and the model used. Weave grabs this usage and model from the output and associates them with the call.
+
+Let's set up a simple custom model, that calculates its own token usage, and stores that in weave.
+
+## Set up the environment[​](/reference/gen_notebooks/custom_model_cost#set-up-the-environment "Direct link to Set up the environment")
+
+We install and import all needed packages. We set `WANDB_API_KEY` in our env so that we may easily login with `wandb.login()` (this should be given to the colab as a secret).
+
+We set the project in W\&B we want to log this into in `name_of_wandb_project`.
+
+***NOTE:*** `name_of_wandb_project` may also be in the format of `{team_name}/{project_name}` to specify a team to log the traces into.
+
+We then fetch a weave client by calling `weave.init()`
+
+```
+%pip install wandb weave datetime --quiet
+```
+
+```
+import osimport wandbfrom google.colab import userdataimport weaveos.environ["WANDB_API_KEY"] = userdata.get("WANDB_API_KEY")name_of_wandb_project = "custom-cost-model"wandb.login()
+```
+
+```
+weave_client = weave.init(name_of_wandb_project)
+```
+
+## Setting up a model with weave[​](/reference/gen_notebooks/custom_model_cost#setting-up-a-model-with-weave "Direct link to Setting up a model with weave")
+
+```
+from weave import Modelclass YourModel(Model):    attribute1: str    attribute2: int    def simple_token_count(self, text: str) -> int:        return len(text) // 3    # This is a custom op that we are defining    # It takes in a string, and outputs a dict with the usage counts, model name, and the output    @weave.op()    def custom_model_generate(self, input_data: str) -> dict:        # Model logic goes here        # Here is where you would have a custom generate function        prediction = self.attribute1 + " " + input_data        # Usage counts        prompt_tokens = self.simple_token_count(input_data)        completion_tokens = self.simple_token_count(prediction)        # We return a dictionary with the usage counts, model name, and the output        # Weave will automatically associate this with the trace        # This object {usage, model, output} matches the output of a OpenAI Call        return {            "usage": {                "input_tokens": prompt_tokens,                "output_tokens": completion_tokens,                "total_tokens": prompt_tokens + completion_tokens,            },            "model": "your_model_name",            "output": prediction,        }    # In our predict function we call our custom generate function, and return the output.    @weave.op()    def predict(self, input_data: str) -> dict:        # Here is where you would do any post processing of the data        outputs = self.custom_model_generate(input_data)        return outputs["output"]
+```
+
+## Add a custom cost[​](/reference/gen_notebooks/custom_model_cost#add-a-custom-cost "Direct link to Add a custom cost")
+
+Here we add a custom cost, and now that we have a custom cost, and our calls have usage, we can fetch the calls with `include_cost` and our calls with have costs under `summary.weave.costs`.
+
+```
+model = YourModel(attribute1="Hello", attribute2=1)model.predict("world")# We then add a custom cost to our projectweave_client.add_cost(    llm_id="your_model_name", prompt_token_cost=0.1, completion_token_cost=0.2)# We can then query for the calls, and with include_costs=True# we receive the costs back attached to the callscalls = weave_client.get_calls(filter={"trace_roots_only": True}, include_costs=True)list(calls)
+```
+
+[Edit this page](https://github.com/wandb/weave/blob/master/docs/docs/reference/gen_notebooks/custom_model_cost.md)
+
+Last updated on **Jun 13, 2025**

@@ -1,97 +1,74 @@
 ---
-title: 'Quickstart'
-description: 'Start building awesome documentation in under 5 minutes'
+title: "Track LLM inputs & outputs"
+description: "Follow these steps to track your first call or"
 ---
 
-## Setup your development
+## 1. Install Weave and create an API Key[​](/quickstart#1-install-weave-and-create-an-api-key "Direct link to 1. Install Weave and create an API Key")
 
-Learn how to update your docs locally and deploy them to the public.
+**Install weave**
 
-### Edit and preview
+First install the weave library:
 
-<AccordionGroup>
-  <Accordion icon="github" title="Clone your docs locally">
-    During the onboarding process, we created a repository on your Github with
-    your docs content. You can find this repository on our
-    [dashboard](https://dashboard.mintlify.com). To clone the repository
-    locally, follow these
-    [instructions](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository)
-    in your terminal.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Preview changes">
-    Previewing helps you make sure your changes look as intended. We built a
-    command line interface to render these changes locally. 
-    1. Install the
-    [Mintlify CLI](https://www.npmjs.com/package/mintlify) to preview the
-    documentation changes locally with this command: ``` npm i -g mintlify ```
-    2. Run the following command at the root of your documentation (where
-    `docs.json` is): ``` mintlify dev ```
-    <Note>
-      If you’re currently using the legacy ```mint.json``` configuration file, please update the Mintlify CLI:
+* Python
+* TypeScript
 
+```
+pip install weave
+```
 
-      ```npm i -g mintlify@latest```
-      And run the new upgrade command in your docs repository:
+```
+pnpm install weave
+```
 
-      ```mintlify upgrade```
-      You should now be using the new ```docs.json``` configuration file. Feel free to delete the ```mint.json``` file from your repository.
-    </Note>
-  </Accordion>
-</AccordionGroup>
+**Get your API key**
 
-### Deploy your changes
+Then, create a Weights & Biases (W\&B) account at [https://wandb.ai](https://wandb.ai) and copy your API key from [https://wandb.ai/authorize](https://wandb.ai/authorize)
 
-<AccordionGroup>
+## 2. Log a trace to a new project[​](/quickstart#2-log-a-trace-to-a-new-project "Direct link to 2. Log a trace to a new project")
 
-<Accordion icon="message-bot" title="Install our Github app">
-  Our Github app automatically deploys your changes to your docs site, so you
-  don't need to manage deployments yourself. You can find the link to install on
-  your [dashboard](https://dashboard.mintlify.com). Once the bot has been
-  successfully installed, there should be a check mark next to the commit hash
-  of the repo.
-</Accordion>
-<Accordion icon="rocket" title="Push your changes">
-  [Commit and push your changes to
-  Git](https://docs.github.com/en/get-started/using-git/pushing-commits-to-a-remote-repository#about-git-push)
-  for your changes to update in your docs site. If you push and don't see that
-  the Github app successfully deployed your changes, you can also manually
-  update your docs through our [dashboard](https://dashboard.mintlify.com).
-</Accordion>
+To get started with tracking your first project with Weave:
 
-</AccordionGroup>
+* Import the `weave` library
 
-## Update your docs
+* Call `weave.init('project-name')` to start tracking
 
-Add content directly in your files with MDX syntax and React components. You can use any of our components, or even build your own.
+  * You will be prompted to log in with your API key if you are not yet logged in on your machine.
+  * To log to a specific W\&B Team name, replace `project-name` with `team-name/project-name`
+  * **NOTE:** In automated environments, you can define the environment variable `WANDB_API_KEY` with your API key to login without prompting.
 
-<CardGroup>
+* Add the `@weave.op()` decorator to the python functions you want to track
 
-<Card title="Add Content With MDX" icon="file" href="/essentials/markdown">
-  Add content to your docs with MDX syntax.
-</Card>
+*In this example, we're using openai so you will need to add an OpenAI [API key](https://platform.openai.com/docs/quickstart/step-2-setup-your-api-key).*
 
-<Card
-  title="Add Code Blocks"
-  icon="square-code"
-  href="/essentials/code"
->
-  Add code directly to your docs with syntax highlighting.
-</Card>
+* Python
+* TypeScript
 
-<Card
-  title="Add Images"
-  icon="image"
-  href="/essentials/images"
->
-  Add images to your docs to make them more engaging.
-</Card>
+```
+import weavefrom openai import OpenAIclient = OpenAI()# Weave will track the inputs, outputs and code of this function@weave.op()def extract_dinos(sentence: str) -> dict:    response = client.chat.completions.create(        model="gpt-4o",        messages=[            {                "role": "system",                "content": """In JSON format extract a list of `dinosaurs`, with their `name`,their `common_name`, and whether its `diet` is a herbivore or carnivore"""            },            {                "role": "user",                "content": sentence            }            ],            response_format={ "type": "json_object" }        )    return response.choices[0].message.content# Initialise the weave projectweave.init('jurassic-park')sentence = """I watched as a Tyrannosaurus rex (T. rex) chased after a Triceratops (Trike), \both carnivore and herbivore locked in an ancient dance. Meanwhile, a gentle giant \Brachiosaurus (Brachi) calmly munched on treetops, blissfully unaware of the chaos below."""result = extract_dinos(sentence)print(result)
+```
 
-<Card
-  title="Add Custom Components"
-  icon="puzzle-piece"
-  href="/essentials/reusable-snippets"
->
-  Add templates to your docs to make them more reusable.
-</Card>
+When you call the `extract_dinos` function Weave will output a link to view your trace.
 
-</CardGroup>
+```
+import OpenAI from 'openai';import * as weave from 'weave';const openai = new OpenAI();async function extractDinos(input: string) {  const response = await openai.chat.completions.create({    model: 'gpt-4o',    messages: [      {        role: 'user',        content: `In JSON format extract a list of 'dinosaurs', with their 'name', their 'common_name', and whether its 'diet' is a herbivore or carnivore: ${input}`,      },    ],  });  return response.choices[0].message.content;}const extractDinosOp = weave.op(extractDinos);async function main() {  await weave.init('examples');  const result = await extractDinosOp(    'I watched as a Tyrannosaurus rex (T. rex) chased after a Triceratops (Trike), both carnivore and herbivore locked in an ancient dance. Meanwhile, a gentle giant Brachiosaurus (Brachi) calmly munched on treetops, blissfully unaware of the chaos below.'  );  console.log(result);}main();
+```
+
+When you call the `extractDinos` function Weave will output a link to view your trace.
+
+## 3. Automated LLM library logging[​](/quickstart#3-automated-llm-library-logging "Direct link to 3. Automated LLM library logging")
+
+Calls made to OpenAI, Anthropic and [many more LLM libraries](/guides/integrations/) are automatically tracked with Weave, with **LLM metadata**, **token usage** and **cost** being logged automatically. If your LLM library isn't currently one of our integrations you can track calls to other LLMs libraries or frameworks easily by wrapping them with `@weave.op()`.
+
+## 4. See traces of your application in your project[​](/quickstart#4-see-traces-of-your-application-in-your-project "Direct link to 4. See traces of your application in your project")
+
+🎉 Congrats! Now, every time you call this function, weave will automatically capture the input & output data and log any changes made to the code.
+
+![Weave Trace Outputs 1](/images/assets/images/tutorial_trace_1-c4e0b8500f4ce7f586c5887b90fde543.png)
+
+## What's next?[​](/quickstart#whats-next "Direct link to What's next?")
+
+* Follow the [Tracking flows and app metadata](/tutorial-tracing_2) to start tracking and the data flowing through your app.
+
+[Edit this page](https://github.com/wandb/weave/blob/master/docs/docs/quickstart.md)
+
+Last updated on **Jun 13, 2025**

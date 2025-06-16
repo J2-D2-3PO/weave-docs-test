@@ -1,0 +1,279 @@
+---
+title: "Overview"
+description: "Efficiently evaluating LLM applications requires robust tooling to collect and analyze feedback. Weave provides an integrated feedback system, allowing users to provide call feedback directly through the UI or programmatically via the SDK. Various feedback types are supported, including emoji reactions, textual comments, and structured data, enabling teams to:"
+---
+
+* Build evaluation datasets for performance monitoring.
+* Identify and resolve LLM content issues effectively.
+* Gather examples for advanced tasks like fine-tuning.
+
+This guide covers how to use Weave’s feedback functionality in both the UI and SDK, query and manage feedback, and use human annotations for detailed evaluations.
+
+* [Provide feedback in the UI](/guides/tracking/feedback#provide-feedback-in-the-ui)
+* [Provide feedback via the SDK](/guides/tracking/feedback#provide-feedback-via-the-sdk)
+* [Add human annotations](/guides/tracking/feedback#add-human-annotations)
+
+## Provide feedback in the UI[​](/guides/tracking/feedback#provide-feedback-in-the-ui "Direct link to Provide feedback in the UI")
+
+In the Weave UI, you can add and view feedback [from the call details page](/guides/tracking/feedback#from-the-call-details-page) or [using the icons](/guides/tracking/feedback#use-the-icons).
+
+### From the call details page[​](/guides/tracking/feedback#from-the-call-details-page "Direct link to From the call details page")
+
+1. In the sidebar, navigate to **Traces**.
+
+2. Find the row for the call that you want to add feedback to.
+
+3. Open the call details page.
+
+4. Select the **Feedback** column for the call.
+
+5. Add, view, or delete feedback:
+
+   * *[Add and view feedback using the icons](/guides/tracking/feedback#use-the-icons)* located in the upper right corner of the call details feedback view.
+   * *View and delete feedback from the call details feedback table.* Delete feedback by clicking the trashcan icon in the rightmost column of the appropriate feedback row.
+
+![Screenshot of Feedback tab in call details](/images/guides/tracking/assets/images/feedback_tab-1d31beb2809461a56d05b90442e19912.png)
+
+### Use the icons[​](/guides/tracking/feedback#use-the-icons "Direct link to Use the icons")
+
+You can add or remove a reaction, and add a note using the icons that are located in both the call table and individual call details pages.
+
+* *Call table*: Located in **Feedback** column in the appropriate row in the call table.
+* *Call details page*: Located in the upper right corner of each call details page.
+
+To add a reaction:
+
+1. Click the emoji icon.
+2. Add a thumbs up, thumbs down, or click the **+** icon for more emojis.
+
+To remove a reaction:
+
+1. Hover over the emoji reaction you want to remove.
+2. Click the reaction to remove it.
+
+> You can also delete feedback from the [**Feedback** column on the call details page.](/guides/tracking/feedback#from-the-call-details-page).
+
+To add a comment:
+
+1. Click the comment bubble icon.
+2. In the text box, add your note.
+3. To save the note, press the **Enter** key. You can add additional notes.
+
+<Info>
+  The maximum number of characters in a feedback note is 1024. If a note exceeds this limit, it will not be created.
+</Info>
+
+![Screenshot of calls grid with feedback column](/images/guides/tracking/assets/images/feedback_calls-7185aaa5f8c703b00f8272ed8ff4eb02.png)
+
+## Provide feedback via the SDK[​](/guides/tracking/feedback#provide-feedback-via-the-sdk "Direct link to Provide feedback via the SDK")
+
+> You can find SDK usage examples for feedback in the UI under the **Use** tab in the call details page.
+
+You can use the Weave SDK to programmatically add, remove, and query feedback on calls.
+
+### Query a project's feedback[​](/guides/tracking/feedback#query-a-projects-feedback "Direct link to Query a project's feedback")
+
+You can query the feedback for your Weave project using the SDK. The SDK supports the following feedback query operations:
+
+* `client.get_feedback()`: Returns all feedback in a project.
+* `client.get_feedback("<feedback_uuid>")`: Return a specific feedback object specified by `<feedback_uuid>` as a collection.
+* `client.get_feedback(reaction="<reaction_type>")`: Returns all feedback objects for a specific reaction type.
+
+You can also get additional information for each feedback object in `client.get_feedback()`:
+
+* `id`: The feedback object ID.
+* `created_at`: The creation time information for the feedback object.
+* `feedback_type`: The type of feedback (reaction, note, custom).
+* `payload`: The feedback payload
+
+* Python
+* TypeScript
+
+```
+import weaveclient = weave.init('intro-example')# Get all feedback in a projectall_feedback = client.get_feedback()# Fetch a specific feedback object by id.# The API returns a collection, which is expected to contain at most one item.one_feedback = client.get_feedback("<feedback_uuid>")[0]# Find all feedback objects with a specific reaction. You can specify offset and limit.thumbs_up = client.get_feedback(reaction="👍", limit=10)# After retrieval, view the details of individual feedback objects.for f in client.get_feedback():    print(f.id)    print(f.created_at)    print(f.feedback_type)    print(f.payload)
+```
+
+```
+This feature is not available in TypeScript yet.  Stay tuned!
+```
+
+### Add feedback to a call[​](/guides/tracking/feedback#add-feedback-to-a-call "Direct link to Add feedback to a call")
+
+You can add feedback to a call using the call's UUID. To use the UUID to get a particular call, [retrieve it during or after call execution](/guides/tracking/feedback#retrieve-the-call-uuid). The SDK supports the following operations for adding feedback to a call:
+
+* `call.feedback.add_reaction("<reaction_type>")`: Add one of the supported `<reaction_types>` (emojis), such as 👍.
+* `call.feedback.add_note("<note>")`: Add a note.
+* `call.feedback.add("<label>", <object>)`: Add a custom feedback `<object>` specified by `<label>`.
+
+<Info>
+  The maximum number of characters in a feedback note is 1024. If a note exceeds this limit, it will not be created.
+</Info>
+
+* Python
+* TypeScript
+
+```
+import weaveclient = weave.init('intro-example')call = client.get_call("<call_uuid>")# Adding an emoji reactioncall.feedback.add_reaction("👍")# Adding a notecall.feedback.add_note("this is a note")# Adding custom key/value pairs.# The first argument is a user-defined "type" string.# Feedback must be JSON serializable and less than 1 KB when serialized.call.feedback.add("correctness", { "value": 5 })
+```
+
+```
+This feature is not available in TypeScript yet.  Stay tuned!
+```
+
+#### Retrieve the call UUID[​](/guides/tracking/feedback#retrieve-the-call-uuid "Direct link to Retrieve the call UUID")
+
+For scenarios where you need to add feedback immediately after a call, you can retrieve the call UUID programmatically during or after the call execution.
+
+* [During call execution](/guides/tracking/feedback#during-call-execution)
+* [After call execution](/guides/tracking/feedback#after-call-execution)
+
+##### During call execution[​](/guides/tracking/feedback#during-call-execution "Direct link to During call execution")
+
+To retrieve the UUID during call execution, get the current call, and return the ID.
+
+* Python
+* TypeScript
+
+```
+import weaveweave.init("uuid")@weave.op()def simple_operation(input_value):    # Perform some simple operation    output = f"Processed {input_value}"    # Get the current call ID    current_call = weave.require_current_call()    call_id = current_call.id    return output, call_id
+```
+
+```
+This feature is not available in TypeScript yet.  Stay tuned!
+```
+
+##### After call execution[​](/guides/tracking/feedback#after-call-execution "Direct link to After call execution")
+
+Alternatively, you can use `call()` method to execute the operation and retrieve the ID after call execution:
+
+* Python
+* TypeScript
+
+```
+import weaveweave.init("uuid")@weave.op()def simple_operation(input_value):    return f"Processed {input_value}"# Execute the operation and retrieve the result and call IDresult, call = simple_operation.call("example input")call_id = call.id
+```
+
+```
+This feature is not available in TypeScript yet.  Stay tuned!
+```
+
+### Delete feedback from a call[​](/guides/tracking/feedback#delete-feedback-from-a-call "Direct link to Delete feedback from a call")
+
+You can delete feedback from a particular call by specifying a UUID.
+
+* Python
+* TypeScript
+
+```
+call.feedback.purge("<feedback_uuid>")
+```
+
+```
+This feature is not available in TypeScript yet.  Stay tuned!
+```
+
+## Add human annotations[​](/guides/tracking/feedback#add-human-annotations "Direct link to Add human annotations")
+
+Human annotations are supported in the Weave UI. To make human annotations, you must first create a Human Annotation scorer using either the [UI](/guides/tracking/feedback#create-a-human-annotation-scorer-in-the-ui) or the [API](/guides/tracking/feedback#create-a-human-annotation-scorer-using-the-api). Then, you can [use the scorer in the UI to make annotations](/guides/tracking/feedback#use-the-human-annotation-scorer-in-the-ui), and [modify your annotation scorers using the API](/guides/tracking/feedback#modify-a-human-annotation-scorer-using-the-api).
+
+### Create a human annotation scorer in the UI[​](/guides/tracking/feedback#create-a-human-annotation-scorer-in-the-ui "Direct link to Create a human annotation scorer in the UI")
+
+To create a human annotation scorer in the UI, do the following:
+
+1. In the sidebar, navigate to **Scorers**.
+
+2. In the upper right corner, click **+ Create scorer**.
+
+3. In the configuration page, set:
+
+   * `Scorer type` to `Human annotation`
+   * `Name`
+   * `Description`
+   * `Type`, which determines the type of feedback that will be collected, such as `boolean` or `integer`.
+
+4. Click **Create scorer**. Now, you can [use your scorer to make annotations](/guides/tracking/feedback#use-the-human-annotation-scorer-in-the-ui).
+
+In the following example, a human annotator is asked to select which type of document the LLM ingested. As such, the `Type` selected for the score configuration is an `enum` containing the possible document types.
+
+![Human Annotation scorer form](/images/guides/tracking/assets/images/human-annotation-scorer-form-d47a587c7e761d7945f01bd825867766.png)
+
+### Use the human annotation scorer in the UI[​](/guides/tracking/feedback#use-the-human-annotation-scorer-in-the-ui "Direct link to Use the human annotation scorer in the UI")
+
+Once you [create a human annotation scorer](/guides/tracking/feedback#create-a-human-annotation-scorer-in-the-ui), it will automatically display in the **Feedback** sidebar of the call details page with the configured options. To use the scorer, do the following:
+
+1. In the sidebar, navigate to **Traces**
+
+2. Find the row for the call that you want to add a human annotation to.
+
+3. Open the call details page.
+
+4. In the upper right corner, click the **Show feedback** button.
+
+   ![Marker icon in call header](data:image/png;base64,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)
+
+   Your available human annotation scorers display in the sidebar.
+
+   ![Human Annotation scorer feedback sidebar](/images/guides/tracking/assets/images/full-feedback-sidebar-7afb18ea536059278ec74f8ccb2e823a.png)
+
+5. Make an annotation.
+
+6. Click **Save**.
+
+7. In the call details page, click **Feedback** to view the calls table. The new annotation displays in the table. You can also view the annotations in the **Annotations** column in the call table in **Traces**.
+
+   > Refresh the call table to view the most up-to-date information.
+
+![Human Annotation scorer feedback in calls table](/images/guides/tracking/assets/images/feedback-in-the-table-604c10a77ccd12d2179d201f0a29db34.png)
+
+### Create a human annotation scorer using the API[​](/guides/tracking/feedback#create-a-human-annotation-scorer-using-the-api "Direct link to Create a human annotation scorer using the API")
+
+Human annotation scorers can also be created through the API. Each scorer is its own object, which is created and updated independently. To create a human annotation scorer programmatically, do the following:
+
+1. Import the `AnnotationSpec` class from `weave.flow.annotation_spec`
+2. Use the `publish` method from `weave` to create the scorer.
+
+In the following example, two scorers are created. The first scorer, `Temperature`, is used to score the perceived temperature of the LLM call. The second scorer, `Tone`, is used to score the tone of the LLM response. Each scorer is created using `save` with an associated object ID (`temperature-scorer` and `tone-scorer`).
+
+* Python
+* TypeScript
+
+```
+import weavefrom weave.flow.annotation_spec import AnnotationSpecclient = weave.init("feedback-example")spec1 = AnnotationSpec(  name="Temperature",  description="The perceived temperature of the llm call",  field_schema={    "type": "number",    "minimum": -1,    "maximum": 1,  })spec2 = AnnotationSpec(  name="Tone",  description="The tone of the llm response",  field_schema={    "type": "string",    "enum": ["Aggressive", "Neutral", "Polite", "N/A"],  },)weave.publish(spec1, "temperature-scorer")weave.publish(spec2, "tone-scorer")
+```
+
+```
+This feature is not available in TypeScript yet.  Stay tuned!
+```
+
+### Modify a human annotation scorer using the API[​](/guides/tracking/feedback#modify-a-human-annotation-scorer-using-the-api "Direct link to Modify a human annotation scorer using the API")
+
+Expanding on [creating a human annotation scorer using the API](/guides/tracking/feedback#create-a-human-annotation-scorer-using-the-api), the following example creates an updated version of the `Temperature` scorer, by using the original object ID (`temperature-scorer`) on `publish`. The result is an updated object, with a history of all versions.
+
+> You can view human annotation scorer object history in the **Scorers** tab under **Human annotations**.
+
+* Python
+* TypeScript
+
+```
+import weavefrom weave.flow.annotation_spec import AnnotationSpecclient = weave.init("feedback-example")# create a new version of the scorerspec1 = AnnotationSpec(  name="Temperature",  description="The perceived temperature of the llm call",  field_schema={    "type": "integer",  # <<- change type to integer    "minimum": -1,    "maximum": 1,  })weave.publish(spec1, "temperature-scorer")
+```
+
+```
+This feature is not available in TypeScript yet.  Stay tuned!
+```
+
+![Human Annotation scorer history](/images/guides/tracking/assets/images/human-annotation-scorer-history-a4be17132b597224d8a5c6e0c56880d8.png)
+
+### Use a human annotation scorer using the API[​](/guides/tracking/feedback#use-a-human-annotation-scorer-using-the-api "Direct link to Use a human annotation scorer using the API")
+
+The feedback API allows you to use a human annotation scorer by specifying a specially constructed name and an `annotation_ref` field. You can obtain the `annotation_spec_ref` from the UI by selecting the appropriate tab, or during the creation of the `AnnotationSpec`.
+
+* Python
+
+```
+import weaveclient = weave.init("feedback-example")call = client.get_call("<call_id>")annotation_spec = weave.ref("<annotation_spec_ref_uri>")call.feedback.add(  feedback_type="wandb.annotation." + annotation_spec.name,  payload={"value": 1},  annotation_ref=annotation_spec.uri(),)
+```
+
+[Edit this page](https://github.com/wandb/weave/blob/master/docs/docs/guides/tracking/feedback.md)
+
+Last updated on **Jun 13, 2025**
